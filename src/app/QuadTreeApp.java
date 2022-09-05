@@ -1,0 +1,105 @@
+package app;
+
+import java.util.Scanner;
+
+import core.Point;
+import core.QuadTree;
+import core.Region;
+import list.List;
+import utils.QuadUtils;
+import static utils.QuadTreeValidationUtils.validateInput;
+import static utils.QuadTreeValidationUtils.validateSearchRegion;
+import static utils.IOUtils.storeQuadTreeDetails;
+import static utils.IOUtils.restoreQuadTreeDetailsList;
+import static utils.IOUtils.restoreQuadTreeDetailsTree;;
+
+public class QuadTreeApp {
+
+	public static void main(String[] args) {
+
+		try (Scanner sc = new Scanner(System.in)) {
+			Region area = new Region(0, 0, 400, 400);
+			boolean exit = false;
+
+			String fileQT = "QuadTree";
+			String fileList = "CityList";
+			QuadTree quadTree = restoreQuadTreeDetailsTree(fileQT);
+			List<Point> list1 = restoreQuadTreeDetailsList(fileList);
+			if (quadTree == null && list1 == null) {
+				quadTree = new QuadTree(area);
+				list1 = new List<Point>();
+				QuadUtils.populateQuadTree(quadTree, list1);
+			}
+			// populating quad tree with with random coordinates
+			while (!exit) {
+				System.out.println("Welcome to mini project on implementation of quad tree, using linkedlist");
+				System.out
+						.println("Quad Tree used in project stores co-ordinate of different cities similar to 2-D map");
+				System.out.println("Choose one option from below" + '\n' + "1.Add city point in given quad tree"
+						+ '\n' + "2.View all city points stored in list" + '\n'
+						+ "3.Search for a city in a given region" + '\n' + "10.Exit");
+				System.out.println("Choose any one");
+				try {
+					switch (sc.nextInt()) {
+
+					case 1:// add a city co-ordinate in the list
+						System.out.println("Enter ther city name to be added in Quad Tree");
+						String cityName = sc.nextLine() + sc.nextLine();
+						System.out.println("Enter the coordinates of city: Format(x, y)\nNote: Choose city point between (0, 400) for testig purpose only");
+						float x = sc.nextFloat();
+						float y = sc.nextFloat();
+						Point newPoint = validateInput(x, y, cityName);
+						if (quadTree.addPoint(newPoint)) {
+							System.out.println("City succesfully added to quad tree");
+							list1.add(newPoint);
+						} else {
+							System.out.println("Cant add the given city to quadTree");
+						}
+						break;
+
+					case 2: // displaying all the city co-ordinates
+						System.out.println("List of cities in the quadtree is as follows");
+						System.out.println(list1);
+						break;
+
+					case 3: // search for cities in a specified region
+						System.out.println("Enter the region boundary where you want to search cities: "
+								+ "Our specified search region is(0,0,400,400)");
+						System.out.println("Format(x1, y1, x2, y2)");
+						System.out.print("x1= ");
+						float x1 = sc.nextFloat();
+						System.out.print("y1= ");
+						float y1 = sc.nextFloat();
+						System.out.print("x2= ");
+						float x2 = sc.nextFloat();
+						System.out.print("y2= ");
+						float y2 = sc.nextFloat();
+
+						Region searchArea = validateSearchRegion(x1, y1, x2, y2);
+						List<Point> result = quadTree.search(searchArea);
+						if (!result.isEmpty()) {
+							System.out.println(
+									"Search completed, cities available in given search region are as follows: ");
+							System.out.println(result);
+						} else
+							System.out.println("No city found for your search region");
+						break;
+
+					case 10: // exit
+						storeQuadTreeDetails(fileQT, fileList, quadTree, list1);
+						exit = true;
+						System.out.println("Exiting the program\n Thanking You");
+					}
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+					sc.nextLine();
+
+				}
+			}
+		} catch (Exception e1) {
+			System.out.println(e1.getMessage());
+		}
+
+	}
+
+}
